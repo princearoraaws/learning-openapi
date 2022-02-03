@@ -1,96 +1,200 @@
-swagger: '2.0'
+---
+swagger: "2.0"
 info:
-  title: Users management API
-  version: '1.0'
-host: api.server.test
-basePath: /api/photoapp/v1/
+  version: "1.0"
+  title: "Users management API"
+host: "kjasja1kie.execute-api.eu-west-1.amazonaws.com"
+basePath: "/Dev"
 schemes:
-  - http
-consumes:
-  - application/json
-produces:
-  - application/json
-tags:
-  - name: User
+- "https"
 paths:
   /users:
     get:
-      operationId: getUsers
-      summary: Get list of users
-      tags:
-        - User
+      operationId: "getUsers"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
       parameters:
-        - name: count
-          in: query
-          description: count of users to be returned in response
-          required: true
-          type: string
+      - name: "count"
+        in: "query"
+        required: true
+        type: "string"
       responses:
-        '200':
-          description: Success
-          schema: 
-            type: array
-            items: 
-              $ref: '#/definitions/UserRef'
-        '400': 
-          description: Bad Request
+        "200":
+          description: "200 response"
           schema:
-            $ref: '#/definitions/Error'
-        '500':
-          description: server error
+            $ref: "#/definitions/ArrayOfUserRef"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+        "400":
+          description: "400 response"
           schema:
-            $ref: '#/definitions/Error'
+            $ref: "#/definitions/Error"
+        "500":
+          description: "500 response"
+          schema:
+            $ref: "#/definitions/Error"
+      x-amazon-apigateway-request-validator: "Validate body, query string parameters,\
+        \ and headers"
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+            responseTemplates:
+              application/json: "{\n    \"count\":\"$input.params('count')\",\n  \
+                \  \"users\":[\n        {\n            \"id\":\"1\",\n           \
+                \ \"firstName\":\"Prince\",\n            \"lastName\":\"Arora\"\n\
+                \        },\n        {\n            \"id\":\"1\",\n            \"\
+                firstName\":\"Prince\",\n            \"lastName\":\"Arora\"\n    \
+                \    }\n    ]\n}"
+        requestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        passthroughBehavior: "when_no_match"
+        type: "mock"
     post:
-      operationId: createUsers
-      summary: 'Create users'
-      tags:
-        - User
-      parameters: 
-        - name: users
-          description: Users to be created
-          required: true
-          in: body
-          schema:
-            $ref: '#/definitions/UserRef'
+      operationId: "createUsers"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "ArrayOfUserRef"
+        required: true
+        schema:
+          $ref: "#/definitions/ArrayOfUserRef"
       responses:
-        '201':
-          description: Created
+        "201":
+          description: "201 response"
           schema:
-            $ref: '#/definitions/UserRef'
-        '400':
-          description: Bad Request
+            $ref: "#/definitions/UserRef"
+        "400":
+          description: "400 response"
           schema:
-            $ref: '#/definitions/Error'
-
+            $ref: "#/definitions/Error"
+      x-amazon-apigateway-request-validator: "Validate body"
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: "201"
+            responseTemplates:
+              application/json: "{\n    \"status\":\"created\"\n}"
+        requestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        passthroughBehavior: "when_no_match"
+        type: "mock"
+  /users/{userId}:
+    get:
+      operationId: "getUser"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "userId"
+        in: "path"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/UserRef"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+        "400":
+          description: "400 response"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "500 response"
+          schema:
+            $ref: "#/definitions/Error"
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+            responseTemplates:
+              application/json: "{\r\n    \"id\":\"$input.params('userId')\",\r\n\
+                \    \"firstName\":\"Prince\",\r\n    \"lastName\":\"Arora\",\r\n\
+                \    \"payload\":\"$input.params\"\r\n}"
+        requestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        passthroughBehavior: "when_no_match"
+        type: "mock"
+    post:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "userId"
+        in: "path"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "UserRef"
+        required: true
+        schema:
+          $ref: "#/definitions/UserRef"
+      responses:
+        "201":
+          description: "201 response"
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: "201"
+            responseTemplates:
+              application/json: "{\n    \"status\":\"created\"\n}"
+        requestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        passthroughBehavior: "when_no_match"
+        type: "mock"
 definitions:
-  UserRef:
-    type: object
-    description: User details
-    required:
-      - firstName
-      - lastName
-    properties: 
-      id:
-        type: string
-        description: Customer ID
-      firstName:
-        type: string
-        description: Customer first name
-      lastName:
-        type: string
-        description: Customer last name
+  ArrayOfUserRef:
+    type: "array"
+    items:
+      $ref: "#/definitions/UserRef"
   Error:
-    type: object
-    description: Error details
-    properties: 
+    type: "object"
+    properties:
       code:
-        type: string
-        description: Error code
+        type: "string"
+        description: "Error code"
       reason:
-        type: string
-        description: Error reason
+        type: "string"
+        description: "Error reason"
       message:
-        type: string
-        description: Error message
-
-    
+        type: "string"
+        description: "Error message"
+    description: "Error details"
+  UserRef:
+    type: "object"
+    required:
+    - "firstName"
+    - "lastName"
+    properties:
+      id:
+        type: "string"
+        description: "Customer ID"
+      firstName:
+        type: "string"
+        description: "Customer first name"
+      lastName:
+        type: "string"
+        description: "Customer last name"
+    description: "User details"
+x-amazon-apigateway-request-validators:
+  Validate body:
+    validateRequestParameters: false
+    validateRequestBody: true
+  Validate body, query string parameters, and headers:
+    validateRequestParameters: true
+    validateRequestBody: true
